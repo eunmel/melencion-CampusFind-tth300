@@ -8,6 +8,7 @@
 
 const STORAGE_KEY = "campusfind_items";
 const TOAST_KEY = "campusfind_toast"; // used to show a toast after a redirect
+let itemsCache = [];
 
 // Category -> Font Awesome icon map (easy to extend)
 const CATEGORY_ICONS = {
@@ -27,17 +28,55 @@ const STATUS_CLASS = {
 };
 
 
-/* ---------- 2. LOCALSTORAGE HELPER FUNCTIONS (CRUD CORE) ---------- */
+/* ---------- 2. LOCALSTORAGE + API HELPER FUNCTIONS (CRUD CORE) ---------- */
+
+async function apiRequest(path, options = {}) {
+  const response = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+
+  const text = await response.text();
+  let payload = text ? JSON.parse(text) : {};
+
+  if (!response.ok) {
+    throw new Error(payload.message || 'Request failed');
+  }
+
+  return payload;
+}
+
+async function refreshItemsFromServer(force = false) {
+  if (!force && itemsCache.length > 0) {
+    return itemsCache;
+  }
+
+  try {
+    const items = await apiRequest('/api/items');
+    itemsCache = Array.isArray(items) ? items : [];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsCache));
+    return itemsCache;
+  } catch (error) {
+    console.warn('Could not refresh from server, using local data instead:', error.message);
+    const localItems = getItems();
+    itemsCache = localItems;
+    return localItems;
+  }
+}
 
 // READ: get every item from localStorage
 function getItems() {
+  if (itemsCache.length > 0) return itemsCache;
+
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+  itemsCache = data ? JSON.parse(data) : [];
+  return itemsCache;
 }
 
 // Save the whole array back to localStorage
 function saveItems(items) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  itemsCache = Array.isArray(items) ? items : [];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(itemsCache));
 }
 
 // READ: get a single item by its id
@@ -47,29 +86,76 @@ function getItemById(id) {
 }
 
 // CREATE: add a brand new item
-function addItem(item) {
-  const items = getItems();
-  item.id = generateId();
-  item.createdAt = Date.now();
-  items.unshift(item); // newest first
-  saveItems(items);
-  return item;
+async function addItem(item) {
+  try {
+    const response = await apiRequest('/api/items', {
+      method: 'POST',
+      body: JSON.stringify(item)
+    });
+
+    const items = getItems();
+    const dbItem = {
+      ...item,
+      id: response.itemId,
+      createdAt: Date.now()
+    };
+
+    saveItems([dbItem, ...items.filter(existing => existing.id !== response.itemId)]);
+    return dbItem;
+  } catch (error) {
+    console.error('Database save failed:', error.message);
+
+    const items = getItems();
+    const newItem = {
+      ...item,
+      id: generateId(),
+      createdAt: Date.now()
+    };
+
+    items.unshift(newItem);
+    saveItems(items);
+    return newItem;
+  }
 }
 
 // UPDATE: replace the fields of an existing item
-function updateItem(id, updatedFields) {
-  const items = getItems();
-  const index = items.findIndex(item => String(item.id) === String(id));
-  if (index === -1) return false;
-  items[index] = { ...items[index], ...updatedFields };
-  saveItems(items);
-  return true;
+async function updateItem(id, updatedFields) {
+  const existing = getItemById(id);
+
+  try {
+    await apiRequest(`/api/items/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updatedFields)
+    });
+
+    const items = getItems();
+    const index = items.findIndex(item => String(item.id) === String(id));
+    if (index !== -1) {
+      items[index] = { ...items[index], ...updatedFields };
+      saveItems(items);
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Database update failed:', error.message);
+    const items = getItems();
+    const index = items.findIndex(item => String(item.id) === String(id));
+    if (index === -1) return false;
+    items[index] = { ...items[index], ...updatedFields };
+    saveItems(items);
+    return true;
+  }
 }
 
 // DELETE: remove an item permanently
-function deleteItem(id) {
-  let items = getItems();
-  items = items.filter(item => String(item.id) !== String(id));
+async function deleteItem(id) {
+  try {
+    await apiRequest(`/api/items/${id}`, { method: 'DELETE' });
+  } catch (error) {
+    console.error('Database delete failed:', error.message);
+  }
+
+  const items = getItems().filter(item => String(item.id) !== String(id));
   saveItems(items);
 }
 
@@ -345,8 +431,8 @@ function readAndResizeImage(file, callback, maxSize = 500) {
 
 /* ----- DASHBOARD (index.html) ----- */
 
-function renderDashboard() {
-  const items = getItems();
+async function renderDashboard() {
+  const items = await refreshItemsFromServer();
 
   const total = items.length;
   const lost = items.filter(i => i.type === "Lost").length;
@@ -392,7 +478,9 @@ let currentStatusFilter = "All";
 let currentCategoryFilter = "All";
 let currentSearchTerm = "";
 
-function renderItemsPage() {
+async function renderItemsPage() {
+  await refreshItemsFromServer();
+
   // Pick up a search term from the URL (e.g. coming from the dashboard)
   const urlSearch = getQueryParam("search");
   if (urlSearch) {
@@ -704,7 +792,9 @@ function showFormErrors(errorFields) {
 
 /* ----- ITEM DETAILS PAGE (item-details.html) ----- */
 
-function renderItemDetails() {
+async function renderItemDetails() {
+  await refreshItemsFromServer();
+
   const id = getQueryParam("id");
   const item = id ? getItemById(id) : null;
   const wrapper = document.getElementById("detailsWrapper");
@@ -779,8 +869,9 @@ function setupDashboardSearch() {
 
 /* ---------- 9. RUN ON EVERY PAGE LOAD ---------- */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   initSampleData();
+  await refreshItemsFromServer(true);
   setActiveNavLink();
   showQueuedToastIfAny();
   setupDashboardSearch();
