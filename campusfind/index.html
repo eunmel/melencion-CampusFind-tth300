@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand"><i class="fa-solid fa-magnifying-glass-location"></i> CampusFind</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="items.html" class="nav-link">Lost &amp; Found</a>
+        <a href="item-form.html" class="nav-link">Report Item</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <h1><i class="fa-solid fa-people-arrows"></i> CampusFind</h1>
+      <p class="tagline">Helping students reunite with their missing belongings</p>
+      <p class="hero-desc">
+        CampusFind is a simple lost and found system for our campus community. Report an item
+        you've lost or found, search existing reports, and help fellow students get their
+        belongings back — all in one place.
+      </p>
+
+      <form class="search-bar" id="dashboardSearchForm">
+        <label for="dashboardSearchInput" class="sr-only" style="position:absolute;left:-9999px;">Search for an item</label>
+        <input type="text" id="dashboardSearchInput" placeholder="Search for an item (name, location, category...)">
+        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-search"></i> Search</button>
+      </form>
+
+      <div class="dashboard-actions">
+        <a href="item-form.html?type=Lost" class="btn btn-primary"><i class="fa-solid fa-circle-exclamation"></i> Report Lost Item</a>
+        <a href="item-form.html?type=Found" class="btn btn-secondary"><i class="fa-solid fa-hand-holding-heart"></i> Report Found Item</a>
+        <a href="items.html" class="btn btn-outline"><i class="fa-solid fa-list"></i> View All Items</a>
+      </div>
+    </section>
+
+    <!-- Summary cards -->
+    <section class="section container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fa-solid fa-clipboard-list"></i>
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-card">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <div class="stat-number" id="statLost">0</div>
+          <div class="stat-label">Lost Items</div>
+        </div>
+        <div class="stat-card">
+          <i class="fa-solid fa-hand-holding-heart"></i>
+          <div class="stat-number" id="statFound">0</div>
+          <div class="stat-label">Found Items</div>
+        </div>
+        <div class="stat-card">
+          <i class="fa-solid fa-circle-check"></i>
+          <div class="stat-number" id="statClaimed">0</div>
+          <div class="stat-label">Claimed Items</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent reports -->
+    <section class="section container">
+      <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Recently Reported</h2>
+      <div class="items-grid" id="recentReportsContainer">
+        <!-- Filled dynamically by script.js -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    CampusFind &mdash; a student project. Data is stored locally in your browser.
+  </footer>
+
+  <!-- Confirm modal (not used on this page, but kept for consistency) -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p id="confirmMessage">Are you sure?</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" id="confirmNoBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmYesBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderDashboard();
+    });
+  </script>
+</body>
+</html>

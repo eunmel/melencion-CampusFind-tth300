@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind - Lost &amp; Found Items</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand"><i class="fa-solid fa-magnifying-glass-location"></i> CampusFind</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="items.html" class="nav-link">Lost &amp; Found</a>
+        <a href="item-form.html" class="nav-link">Report Item</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container section">
+    <h2 class="section-title"><i class="fa-solid fa-boxes-stacked"></i> Lost &amp; Found Items</h2>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filter-group" role="group" aria-label="Filter by report type">
+        <button type="button" class="filter-btn active" data-filter="All">All Items</button>
+        <button type="button" class="filter-btn" data-filter="Lost">Lost</button>
+        <button type="button" class="filter-btn" data-filter="Found">Found</button>
+        <button type="button" class="filter-btn" data-filter="Claimed">Claimed</button>
+      </div>
+
+      <label for="categoryFilter" class="sr-only" style="position:absolute;left:-9999px;">Filter by category</label>
+      <select id="categoryFilter" aria-label="Filter by category">
+        <option value="All">All Categories</option>
+        <option value="Electronics">Electronics</option>
+        <option value="IDs and Cards">IDs and Cards</option>
+        <option value="Bags">Bags</option>
+        <option value="Accessories">Accessories</option>
+        <option value="Personal Items">Personal Items</option>
+      </select>
+
+      <div class="search-wrap">
+        <label for="itemsSearchInput" class="sr-only" style="position:absolute;left:-9999px;">Search items</label>
+        <input type="text" id="itemsSearchInput" placeholder="Search by name, location, category...">
+      </div>
+
+      <button type="button" class="btn btn-outline btn-small" id="clearFiltersBtn">
+        <i class="fa-solid fa-rotate-left"></i> Clear
+      </button>
+    </div>
+
+    <!-- Items grid -->
+    <div class="items-grid" id="itemsContainer">
+      <!-- Filled dynamically by script.js -->
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    CampusFind &mdash; a student project. Data is stored locally in your browser.
+  </footer>
+
+  <!-- Confirm modal for deleting -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p id="confirmMessage">Are you sure?</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" id="confirmNoBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmYesBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      setupItemsPageControls();
+      renderItemsPage();
+    });
+  </script>
+</body>
+</html>

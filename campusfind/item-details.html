@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusFind - Item Details</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand"><i class="fa-solid fa-magnifying-glass-location"></i> CampusFind</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="items.html" class="nav-link">Lost &amp; Found</a>
+        <a href="item-form.html" class="nav-link">Report Item</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container section">
+
+    <!-- Item found: details shown here -->
+    <div class="details-wrapper" id="detailsWrapper">
+      <div class="details-image" id="detailsImage">
+        <!-- Filled dynamically -->
+      </div>
+
+      <div class="details-info">
+        <div class="details-header">
+          <h2 id="detailsName">Item Name</h2>
+          <span class="type-badge" id="detailsTypeBadge">Lost</span>
+        </div>
+        <span class="badge" id="detailsStatusBadge">Searching</span>
+
+        <div class="details-grid">
+          <div class="details-item-row">
+            <strong>Category</strong>
+            <span id="detailsCategory">-</span>
+          </div>
+          <div class="details-item-row">
+            <strong>Color</strong>
+            <span id="detailsColor">-</span>
+          </div>
+          <div class="details-item-row">
+            <strong>Last Seen / Location</strong>
+            <span id="detailsLocation">-</span>
+          </div>
+          <div class="details-item-row">
+            <strong>Date Reported</strong>
+            <span id="detailsDate">-</span>
+          </div>
+          <div class="details-item-row">
+            <strong>Reported By</strong>
+            <span id="detailsReporter">-</span>
+          </div>
+        </div>
+
+        <div class="details-description">
+          <strong style="display:block; color: var(--dark-pink); font-size: 0.8rem; text-transform: uppercase; margin-bottom: 6px;">Description</strong>
+          <p id="detailsDescription">-</p>
+        </div>
+
+        <div class="details-actions">
+          <a href="#" id="contactBtn" class="btn btn-primary"><i class="fa-solid fa-envelope"></i> Contact Reporter</a>
+          <a href="#" id="editBtn" class="btn btn-outline"><i class="fa-solid fa-pen"></i> Edit Item</a>
+          <button type="button" id="deleteBtn" class="btn btn-danger"><i class="fa-solid fa-trash"></i> Delete Item</button>
+          <a href="items.html" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back to Items</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item NOT found: friendly message shown here -->
+    <div class="not-found-box" id="notFoundBox">
+      <i class="fa-solid fa-face-frown"></i>
+      <h2>Item not found</h2>
+      <p>We couldn't find a report with that ID. It may have been deleted or the link is incorrect.</p>
+      <a href="items.html" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i> Back to Items</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    CampusFind &mdash; a student project. Data is stored locally in your browser.
+  </footer>
+
+  <!-- Confirm modal for deleting -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p id="confirmMessage">Are you sure?</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" id="confirmNoBtn">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmYesBtn">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      renderItemDetails();
+    });
+  </script>
+</body>
+</html>
